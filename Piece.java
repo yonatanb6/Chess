@@ -97,6 +97,7 @@ public abstract class Piece implements PieceInterface {
             Square curSquare = board.squareFinder(curX, curY);
             if (curSquare.getOccupant() != null) {
                 validMoves.add(curMove);
+                detectCheck(board, curX, curY);
                 break;
             }
             validMoves.add(curMove);  
@@ -122,6 +123,7 @@ public abstract class Piece implements PieceInterface {
             curMove[1] = curY;
             validMoves.add(curMove);  
             if (blocked == 1) {
+                detectCheck(board, curX, curY);
                 break;
             }
         }
@@ -142,12 +144,14 @@ public abstract class Piece implements PieceInterface {
             curMove[1] = curY;
             validMoves.add(curMove);  
             if (blocked == 1) {
+                detectCheck(board, position[0], curY);
                 break;
             }
         }        
         return validMoves;
 
     }
+
 
     public ArrayList<int[]> verticalHelper(int[] position, Board board, char color) {
         ArrayList<int[]> validMoves = new ArrayList<int[]>();
@@ -160,11 +164,13 @@ public abstract class Piece implements PieceInterface {
             if (blocked == 2) {
                 break;
             }
+
             int[] curMove = new int[2];
             curMove[0] = position[0];
             curMove[1] = curY;
             validMoves.add(curMove);  
             if (blocked == 1) {
+                detectCheck(board, position[0], curY);
                 break;
             }
         }
@@ -182,6 +188,7 @@ public abstract class Piece implements PieceInterface {
             curMove[1] = curY;
             validMoves.add(curMove);  
             if (blocked == 1) {
+                detectCheck(board, position[0], curY);
                 break;
             }
         }  
@@ -204,6 +211,7 @@ public abstract class Piece implements PieceInterface {
             curMove[1] = position[1];
             validMoves.add(curMove);  
             if (blocked == 1) {
+                detectCheck(board, curX, position[1]);
                 break;
             }
         }
@@ -221,6 +229,7 @@ public abstract class Piece implements PieceInterface {
             curMove[1] = position[1];
             validMoves.add(curMove);  
             if (blocked == 1) {
+                detectCheck(board, curX, position[1]);
                 break;
             }
         }
@@ -251,6 +260,19 @@ public abstract class Piece implements PieceInterface {
         ArrayList<int[]> validMoves = findValidMoves();
         for (int i = 0; i < validMoves.size(); i++) {
             System.out.println("Move " + i + " (" + validMoves.get(i)[0] + ", " + validMoves.get(i)[1] + ")");
+        }
+    }
+
+    public void detectCheck(Board board, int x, int y) {
+        // check to see if this puts the king in check
+        Square curSquare = board.squares.get(x)[y];
+        if (curSquare.getOccupant() != null) {
+            if (curSquare.getOccupant().getName() == "King") {
+                System.out.println("CHECK!");
+                King king = (King) curSquare.getOccupant();
+                king.setCheck();
+                king.setCheckingPiece(this);
+            }
         }
     }
     // setters

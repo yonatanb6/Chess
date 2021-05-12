@@ -15,7 +15,7 @@ public class Board {
     private static int moveCount = 0;
 
     public Board() {
-        squares.clear();
+        this.squares.clear();
         pieces.clear();
         int counter = 0;
         for (int col = 0; col < 8; col++) {
@@ -35,7 +35,7 @@ public class Board {
                 curRow[row] = new Square(col, row, color);
                 counter++;
             }
-            squares.add(curRow);
+            this.squares.add(curRow);
         }
     }
 
@@ -145,6 +145,24 @@ public class Board {
     *               piece there
     */
     public void moveProtocol(Square curSquare) {
+        // check to see if the king is in check
+        // initalize with random king
+        King king = this.kings.get(0);
+        for (int i = 0; i < this.kings.size(); i++) {
+            if (this.kings.get(i).getColor() == turn) {
+                king = this.kings.get(i);
+                break;
+            }
+        }
+        // if so find the checking piece
+        // initalize with random piece
+        Piece checkingPiece = this.pieces.get(0);
+        Boolean kingChecked = false;
+        Boolean badMove = false;
+        if (king.getCheck()) {
+            checkingPiece = king.getCheckingPiece();
+            kingChecked = true;
+        }
         // if this square does not have an occupant
         if (curSquare.getOccupant() == null) {
             // if there was a previously selected square
@@ -152,17 +170,45 @@ public class Board {
                 Piece curPiece = Square.getHighlightedStartSquare().getOccupant();
                 // if it is the current piece's turn
                 if (curPiece.getColor() == turn) {
+                        
+                    // if the king is in check see if this move fixes that
+                    if (kingChecked) {
+
+                        // case 1: the king is moved out of check
+                        if (curPiece.getType() == 99) {
+                            for (int i = 0; i < this.pieces.size(); i++) {
+                                // check to see if the new square is attacked by an enemy piece
+                                Boolean kingAttacked = comparisonHelper(this.pieces.get(i).findValidMoves(), curSquare.getPosition());
+                                    if (kingAttacked) {
+                                        badMove = true;
+                                        break;
+                                    }
+                            }
+                        }
+                        // case 2: a piece moves in front of the king
+
+                        // see if the move being made is one of valid moves for the attacking piece
+                        // also check to make sure the move is between the king and attacking piece
+
+                        else {
+                            Boolean blockingKing = comparisonHelper(checkingPiece.findValidMoves(), curSquare.getPosition());
+                            if (!blockingKing) {
+                                badMove = true;
+                            }
+                        }
+                    }
+                    
                     // let the pice make a valid move
-                    if (comparisonHelper(curPiece.findValidMoves(), curSquare.getPosition())) {
+                    if (comparisonHelper(curPiece.findValidMoves(), curSquare.getPosition()) & !badMove) {
                         curPiece.move(curPiece.getBoard(), curSquare, curPiece.getPosition(), curPiece.getImagePath());
                         changeTurn();
                         moveCount++;
                         checkProtocol();
                         System.out.println("MOVE: " + moveCount);
                     }
+                    Square.setHighlightedStartSquareNull();
                 }
             }
-            Square.setHighlightedStartSquareNull();
         }
     }
 

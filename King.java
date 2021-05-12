@@ -9,6 +9,7 @@ public class King extends Piece{
     private String name = "King";
     private Boolean captured = false;
     private Boolean check = false;
+    private Piece checkingPiece;
 
     public King(Board b, char color, int x, int y) {
         this.color = color;
@@ -36,7 +37,7 @@ public class King extends Piece{
         }
         
         // find all enemy pieces
-        ArrayList<Piece> pieces = board.getPieces(enemyColor);
+        ArrayList<Piece> pieces = this.board.getPieces(enemyColor);
         System.out.print("###########################################");
         for (int i = 0; i < pieces.size(); i++) {
 
@@ -46,7 +47,7 @@ public class King extends Piece{
                 // ##### TESTING ####
                 Piece curPiece = pieces.get(i);
                 if (curPiece.getName() == "Pawn") {
-                    System.out.println("Valid Moves for " + curPiece.getColor() + " " + curPiece.getName());
+                    System.out.println("\nValid Moves for " + curPiece.getColor() + " " + curPiece.getName());
                     curPiece.printValidMoves();
                 }
 
@@ -59,7 +60,7 @@ public class King extends Piece{
                     // check to see if the kings current square is one of those moves
                     if (validMoves.get(j)[0] == this.getPosition()[0] && validMoves.get(j)[1] == this.getPosition()[1]) {
                         System.out.println("#### CHECK ####");
-                        Square curSquare = board.squareFinder(this.position[0], this.position[1]);
+                        Square curSquare = this.board.squareFinder(this.position[0], this.position[1]);
                         curSquare.highlightCheck();
                         this.check = true;
                     }
@@ -89,7 +90,7 @@ public class King extends Piece{
                     continue;
                 }
 
-                Square curSquare = board.squares.get(xPos)[yPos];
+                Square curSquare = this.board.squares.get(xPos)[yPos];
                 
                 // skip the square the king occupies
                 if (curSquare.getOccupant() == this) {
@@ -155,5 +156,19 @@ public class King extends Piece{
 
     public Boolean getCheck() {
         return this.check;
+    }
+
+    public Piece getCheckingPiece() {
+        return this.checkingPiece;
+    }
+
+        // setters
+
+    public void setCheck() {
+        this.check = true;
+    }
+
+    public void setCheckingPiece(Piece p) {
+        this.checkingPiece = p;
     }
 }
